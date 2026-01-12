@@ -1,64 +1,113 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>ÖZER DİVANI</title>
-<style>
-body { margin:0;font-family:Arial;background:#0a192f;color:#fff }
-#chatbox{height:80vh;overflow:auto;padding:15px}
-.msg{margin:8px 0;padding:10px;border-radius:10px}
-.lider{background:#fff3c4;color:#000}
-.bot{background:#e0e0e0;color:#000}
-input,button{padding:10px;font-size:16px}
-</style>
+  <meta charset="UTF-8" />
+  <title>Özer Divanı</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1e293b, #020617);
+      color: #e5e7eb;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #facc15;
+      letter-spacing: 1px;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+    button {
+      background: linear-gradient(135deg,#facc15,#eab308);
+      color: #020617;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .reply {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      min-height: 40px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+  </style>
 </head>
 <body>
 
-<h2 style="text-align:center">ÖZER DİVANI</h2>
+  <div class="container">
+    <h1>Özer Divanı</h1>
 
-<div id="chatbox"></div>
+    <div class="card">
+      <select id="bot">
+        <option>Kerem Özer</option>
+        <option>Faruk Özer</option>
+        <option>Ahmet Özer</option>
+        <option>Ali Özer</option>
+        <option>Mahmut Enes Demiroğlu</option>
+        <option>Mervan Cengiz</option>
+        <option>Hacı Remzi Özer</option>
+        <option>Hacı Abdullah Özer</option>
+      </select>
 
-<input id="mesaj" placeholder="Mesaj yaz (örn: Hacı Abdullah nasihat ver)">
-<button onclick="gonder()">Gönder</button>
+      <textarea id="mesaj" placeholder="Divana sözünü söyle..."></textarea>
+
+      <button onclick="gonder()">Sor</button>
+
+      <div class="reply" id="reply"></div>
+    </div>
+
+    <footer>
+      © Özer Divanı – Reis Said Özer
+    </footer>
+  </div>
 
 <script>
-const API_URL = "https://ozer-ai.onrender.com/chat";
+async function gonder() {
+  const bot = document.getElementById("bot").value;
+  const mesaj = document.getElementById("mesaj").value;
+  const replyBox = document.getElementById("reply");
 
-const bots = [
-  "Kerem Özer",
-  "Faruk Özer",
-  "Ahmet Özer",
-  "Ali Özer",
-  "Mahmut Enes Demiroğlu",
-  "Mervan Cengiz",
-  "Hacı Remzi Özer",
-  "Hacı Abdullah Özer"
-];
+  replyBox.innerText = "Cevap geliyor...";
 
-function ekle(isim, mesaj, sinif){
-  const d=document.createElement("div");
-  d.className="msg "+sinif;
-  d.innerHTML="<b>"+isim+":</b> "+mesaj;
-  document.getElementById("chatbox").appendChild(d);
-}
-
-async function gonder(){
-  const m=document.getElementById("mesaj").value.trim();
-  if(!m) return;
-  document.getElementById("mesaj").value="";
-  ekle("Said Özer",m,"lider");
-
-  const bot = bots.find(b=>m.toLowerCase().includes(b.toLowerCase().split(" ")[0]));
-  if(!bot) return;
-
-  const r = await fetch(API_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ bot:bot, mesaj:m })
+  const res = await fetch("/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bot, mesaj })
   });
 
-  const j = await r.json();
-  ekle(bot,j.reply || "...","bot");
+  const data = await res.json();
+  replyBox.innerText = data.reply;
 }
 </script>
 
